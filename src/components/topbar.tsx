@@ -7,64 +7,50 @@ import { Button } from './ui/button'
 import { useState } from 'react'
 import MobileSidebar from './mobile-sidebar'
 import { usePWAInstall } from '@/lib/pwa'
-import { ConfirmDialog } from './ui/dialog'
-import { useAuth } from '@/lib/auth-client'
 import { useToast } from './ui/toast'
 
 export default function Topbar() {
-  const { push } = useToast()
   const { theme, setTheme, systemTheme } = useTheme()
-  const [open, setOpen] = useState(false)
-  const [iosHelp, setIosHelp] = useState(false)
-  const { canInstall, installed, install, isIOS, isStandalone } = usePWAInstall()
   const current = theme === 'system' ? systemTheme : theme
+  const [open, setOpen] = useState(false)
+  const { canInstall, install, isIOS, isStandalone, installed } = usePWAInstall()
+  const { push } = useToast()
+
   const toggleTheme = () => setTheme(current === 'dark' ? 'light' : 'dark')
 
-
-const onInstall = async () => {
-  if (canInstall) {
-    await install()
-  } else if (isIOS && !isStandalone) {
-    setIosHelp(true)
-  } else {
-    push({ variant: 'info', message: 'Use your browser menu to Install (Chrome: 3-dots > Install App). Ensure you are on HTTPS or localhost.' })
+  const onInstall = async () => {
+    if (canInstall) await install()
+    else if (isIOS && !isStandalone) {
+      push({ variant: 'info', message: "On iOS, tap Share → Add to Home Screen to install." })
+    } else {
+      push({ variant: 'info', message: 'Use your browser menu to Install (HTTPS or localhost required).' })
+    }
   }
-}
-
-  const { user, signOut } = useAuth()
-  {
-    user && (
-      <>
-        <span className="hidden sm:inline text-sm text-muted-foreground">{user.email}</span>
-        <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
-      </>
-    )
-  }
-
-  {!installed && (
-  <Button variant="ghost" size="sm" onClick={onInstall}>
-    <Download className="h-4 w-4 mr-1.5" /> Install
-  </Button>
-)}
 
   return (
     <header className="sticky top-0 z-40 glass smooth">
       <div className="flex items-center justify-between px-3 md:px-6 py-3">
         <div className="flex items-center gap-2">
           {/* Hamburger for mobile */}
-          <Button variant="ghost" size="icon" className="pill md:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="pill md:hidden"
+            aria-label="Open menu"
+            aria-expanded={open}
+            aria-controls="mobile-sidebar"
+            onClick={() => setOpen(true)}
+          >
             <Menu className="h-5 w-5" />
           </Button>
           <Link href="/" className="font-semibold tracking-tight">Invoice Pro</Link>
         </div>
         <div className="flex items-center gap-2">
-          {/* Install button: shown if not already installed */}
           {!installed && (
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={onInstall}>
+            <Button variant="ghost" size="sm" onClick={onInstall}>
               <Download className="h-4 w-4 mr-1.5" /> Install
             </Button>
           )}
-          {/* Theme toggle */}
           <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" className="pill">
             <Sun className="h-5 w-5 dark:hidden" />
             <Moon className="h-5 w-5 hidden dark:block" />
@@ -74,16 +60,6 @@ const onInstall = async () => {
 
       {/* Mobile slide-over sidebar */}
       <MobileSidebar open={open} onOpenChange={setOpen} />
-
-      {/* iOS install instructions */}
-      <ConfirmDialog
-        open={iosHelp}
-        onOpenChange={setIosHelp}
-        title="Install on iOS"
-        description="On iPhone/iPad, tap the Share button in Safari, then choose 'Add to Home Screen' to install."
-        confirmText="Got it"
-        onConfirm={() => setIosHelp(false)}
-      />
     </header>
   )
 }

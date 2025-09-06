@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="flex-1 flex flex-col">
                   <Topbar />
                   <AuthGuard>
-                    <main className="flex-1 p-4 md:p-8">{children}</main>
+<main className="flex-1 p-4 md:p-8 pb-20 md:pb-8">{children}</main>
                     <MobileTabbar/>
                   </AuthGuard>
                 </div>
