@@ -1,6 +1,4 @@
 // app/auth/sign-in/page.tsx
-export const dynamic = 'force-dynamic'
-
 'use client'
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth-client'
@@ -9,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
+export const dynamic = 'force-dynamic'
 export default function SignInPage() {
   const { signInWithEmail, signInWithGoogle } = useAuth()
   const [email, setEmail] = useState(''); const [password, setPassword] = useState('')
