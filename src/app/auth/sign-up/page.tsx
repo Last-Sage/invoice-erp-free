@@ -1,4 +1,6 @@
 // app/auth/sign-up/page.tsx
+export const dynamic = 'force-dynamic'
+
 'use client'
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth-client'
