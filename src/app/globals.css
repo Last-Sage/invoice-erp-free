@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 14px;
+
+  /* Light */
+  --background: 0 0% 98%;
+  --foreground: 224 14% 16%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 224 14% 16%;
+
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 10% 44%;
+
+  --border: 220 13% 92%;
+
+  /* Accent -> iOS blue #0A84FF */
+  --primary: 211 100% 50%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 224 14% 16%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --ring: 211 100% 50%;
+
+  /* Elevation layers */
+  --elev-1: 0 0% 100%;
+  --elev-2: 0 0% 100% / 0.7;
+  --elev-3: 0 0% 100% / 0.5;
+
+  /* Shadow */
+  --shadow: 220 40% 2% / 0.06;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root.dark {
+  --background: 240 6% 7%;
+  --foreground: 220 10% 96%;
+
+  --card: 240 6% 10%;
+  --card-foreground: 220 10% 96%;
+
+  --muted: 240 7% 14%;
+  --muted-foreground: 220 8% 65%;
+
+  --border: 240 6% 18%;
+
+  --primary: 211 100% 56%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 7% 14%;
+  --secondary-foreground: 220 10% 96%;
+
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --ring: 211 100% 60%;
+
+  --elev-1: 240 6% 12%;
+  --elev-2: 240 6% 12% / 0.65;
+  --elev-3: 240 6% 12% / 0.45;
+
+  --shadow: 220 40% 2% / 0.35;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base */
+html {
+  color-scheme: light dark;
+}
+
+* {
+  border-color: hsl(var(--border));
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  background: radial-gradient(1200px 800px at 10% -10%, hsl(210 100% 97%), transparent),
+              radial-gradient(1000px 700px at 90% -10%, hsl(260 100% 98%), transparent),
+              hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tokens -> utilities */
+.bg-background { background-color: hsl(var(--background)); }
+.text-foreground { color: hsl(var(--foreground)); }
+.bg-card { background-color: hsl(var(--card)); }
+.text-card-foreground { color: hsl(var(--card-foreground)); }
+.bg-primary { background-color: hsl(var(--primary)); }
+.text-primary-foreground { color: hsl(var(--primary-foreground)); }
+.bg-secondary { background-color: hsl(var(--secondary)); }
+.text-secondary-foreground { color: hsl(var(--secondary-foreground)); }
+.bg-muted { background-color: hsl(var(--muted)); }
+.text-muted-foreground { color: hsl(var(--muted-foreground)); }
+.bg-destructive { background-color: hsl(var(--destructive)); }
+.text-destructive-foreground { color: hsl(var(--destructive-foreground)); }
+.focus-visible\:ring-ring:focus-visible { box-shadow: 0 0 0 4px hsl(var(--ring) / 0.25); }
+
+/* Glass surfaces */
+.glass {
+  background-color: hsl(var(--elev-2));
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: 0 8px 30px hsla(var(--shadow));
+}
+
+.surface {
+  background-color: hsl(var(--elev-1));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 8px 30px hsla(var(--shadow));
+}
+
+/* Cards: softer, rounder */
+.card-rounded {
+  border-radius: var(--radius);
+}
+
+/* Pills */
+.pill { border-radius: 9999px; }
+
+/* Transitions */
+.smooth { transition: all 160ms ease; }
+
+/* Print */
+@media print {
+  header, aside, nav, button, .no-print { display: none !important; }
+  main { padding: 0 !important; }
 }
