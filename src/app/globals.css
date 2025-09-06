@@ -77,9 +77,7 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
-  background: radial-gradient(1200px 800px at 10% -10%, hsl(210 100% 97%), transparent),
-              radial-gradient(1000px 700px at 90% -10%, hsl(260 100% 98%), transparent),
-              hsl(var(--background));
+  background: gray;
   color: hsl(var(--foreground));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

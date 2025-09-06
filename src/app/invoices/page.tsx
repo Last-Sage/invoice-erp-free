@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useSettings } from '@/lib/settings-client'
 import { SortHeader, applySort, SortState } from '@/components/ui/sort'
+import { useToast } from '@/components/ui/toast'
 
 export default function InvoicesPage() {
   const { settings } = useSettings()
@@ -17,6 +18,7 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([])
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<SortState<'number'|'customer'|'date'|'due'|'status'|'total'>>({ key: 'date', dir: 'desc' })
+  const { push } = useToast()
 
   const load = async () => {
     const inv = await db.list('invoices')
@@ -71,7 +73,12 @@ export default function InvoicesPage() {
                 <TD>
                   <div className="flex gap-2">
                     <Button variant="secondary" asChild><Link href={`/invoices/${i.id}`}>Open</Link></Button>
-                    <Button variant="destructive" onClick={async () => { await db.remove('invoices', i.id); load() }}>Delete</Button>
+                    <Button variant="destructive" onClick={async () => {
+  if (!confirm('Delete this invoice? It will be removed locally and on cloud at next sync.')) return
+  await db.remove('invoices', i.id)
+  push({ variant: 'success', message: 'Invoice moved to trash (will sync to cloud).' })
+  load()
+}}>Delete</Button>
                   </div>
                 </TD>
               </TR>

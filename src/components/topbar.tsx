@@ -9,8 +9,10 @@ import MobileSidebar from './mobile-sidebar'
 import { usePWAInstall } from '@/lib/pwa'
 import { ConfirmDialog } from './ui/dialog'
 import { useAuth } from '@/lib/auth-client'
+import { useToast } from './ui/toast'
 
 export default function Topbar() {
+  const { push } = useToast()
   const { theme, setTheme, systemTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const [iosHelp, setIosHelp] = useState(false)
@@ -19,13 +21,15 @@ export default function Topbar() {
   const toggleTheme = () => setTheme(current === 'dark' ? 'light' : 'dark')
 
 
-  const onInstall = async () => {
-    if (canInstall) {
-      await install()
-    } else if (isIOS && !isStandalone) {
-      setIosHelp(true)
-    }
+const onInstall = async () => {
+  if (canInstall) {
+    await install()
+  } else if (isIOS && !isStandalone) {
+    setIosHelp(true)
+  } else {
+    push({ variant: 'info', message: 'Use your browser menu to Install (Chrome: 3-dots > Install App). Ensure you are on HTTPS or localhost.' })
   }
+}
 
   const { user, signOut } = useAuth()
   {
@@ -36,6 +40,12 @@ export default function Topbar() {
       </>
     )
   }
+
+  {!installed && (
+  <Button variant="ghost" size="sm" onClick={onInstall}>
+    <Download className="h-4 w-4 mr-1.5" /> Install
+  </Button>
+)}
 
   return (
     <header className="sticky top-0 z-40 glass smooth">

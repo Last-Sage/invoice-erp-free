@@ -1,9 +1,9 @@
-// components/sidebar.tsx
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { LayoutDashboard, Users, Package, FileText, Receipt, BarChart3, Settings } from 'lucide-react'
+import { useAuth } from '@/lib/auth-client'
 
 const NAV = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -17,6 +17,9 @@ const NAV = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const { loading } = useAuth()
+  if (loading || pathname.startsWith('/auth')) return null
+
   return (
     <aside className="hidden md:flex group/aside flex-col glass smooth w-16 hover:w-64">
       <div className="px-3 py-4 text-sm font-semibold">IP</div>
