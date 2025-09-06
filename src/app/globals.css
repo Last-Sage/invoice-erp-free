@@ -66,6 +66,16 @@
   --shadow: 220 40% 2% / 0.35;
 }
 
+:root {
+  --topbar-h: 56px;   /* mobile top bar height */
+  --tabbar-h: 56px;   /* mobile bottom bar height */
+}
+@media (min-width: 768px) {
+  :root {
+    --topbar-h: 64px; /* desktop top bar height */
+  }
+}
+
 /* Base */
 html {
   color-scheme: light dark;

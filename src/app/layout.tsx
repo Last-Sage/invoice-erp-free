@@ -16,12 +16,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#0A84FF" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-</head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#0A84FF" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -31,8 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="flex-1 flex flex-col">
                   <Topbar />
                   <AuthGuard>
-<main className="flex-1 p-4 md:p-8 pb-20 md:pb-8">{children}</main>
-                    <MobileTabbar/>
+                    <main className="flex-1 p-4 md:p-8 pt-[var(--topbar-h)] pb-[calc(var(--tabbar-h)+env(safe-area-inset-bottom,0px))] md:pb-8">
+  {children}
+</main>
+                    <MobileTabbar />
                   </AuthGuard>
                 </div>
               </div>
@@ -40,8 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ThemeProvider>
         </AuthProvider>
         <script
-  dangerouslySetInnerHTML={{
-    __html: `
+          dangerouslySetInnerHTML={{
+            __html: `
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
@@ -49,8 +51,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             .catch(console.error)
         })
       }`
-  }}
-/>
+          }}
+        />
       </body>
     </html>
   )

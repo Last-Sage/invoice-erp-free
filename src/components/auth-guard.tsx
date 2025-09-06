@@ -1,4 +1,4 @@
-// components/auth-guard.tsx (show loader while auth loading)
+// components/auth-guard.tsx
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -19,12 +19,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, pathname, router])
 
-  if (loading && !PUBLIC_ROUTES.includes(pathname)) {
+  // While loading or just signed out, don’t render the previous screen
+  if ((loading || !user) && !PUBLIC_ROUTES.includes(pathname)) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
         <Loader size={10} />
       </div>
     )
   }
+
   return <>{children}</>
 }

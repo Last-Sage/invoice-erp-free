@@ -20,26 +20,31 @@ export default function MobileTabbar() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 md:hidden border-t bg-card/90 backdrop-blur z-[80]"
+      className="
+        fixed bottom-0 left-0 right-0 md:hidden
+        z-[120] border-t
+        bg-card/90 backdrop-blur supports-[backdrop-filter]:bg-card/70
+        pointer-events-auto
+      "
       style={{
-        // keep visible above everything and respect iOS safe-area
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
       aria-label="Primary"
     >
-      <div className="grid grid-cols-6">
-        {TABS.map(t => {
+      <div className="flex items-stretch justify-between px-1">
+        {TABS.map((t) => {
           const Icon = t.icon
           const active = pathname === t.href || pathname.startsWith(t.href + '/')
           return (
             <Link
               key={t.href}
               href={t.href}
-              className="flex flex-col items-center py-2 text-xs"
+              className="flex-1 min-w-0 flex flex-col items-center justify-center py-2 text-xs"
               aria-current={active ? 'page' : undefined}
             >
               <Icon className={cn('w-5 h-5', active && 'text-[hsl(var(--primary))]')} />
-              <span className={cn('mt-1', active && 'text-[hsl(var(--primary))]')}>{t.label}</span>
+              {/* Hide label on very small screens so all icons always fit; show label >= 640px */}
+              <span className={cn('mt-1 hidden sm:block', active && 'text-[hsl(var(--primary))]')}>{t.label}</span>
             </Link>
           )
         })}

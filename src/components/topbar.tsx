@@ -17,21 +17,16 @@ export default function Topbar() {
   const { push } = useToast()
 
   const toggleTheme = () => setTheme(current === 'dark' ? 'light' : 'dark')
-
   const onInstall = async () => {
     if (canInstall) await install()
-    else if (isIOS && !isStandalone) {
-      push({ variant: 'info', message: "On iOS, tap Share → Add to Home Screen to install." })
-    } else {
-      push({ variant: 'info', message: 'Use your browser menu to Install (HTTPS or localhost required).' })
-    }
+    else if (isIOS && !isStandalone) push({ variant: 'info', message: "On iOS, tap Share → Add to Home Screen to install." })
+    else push({ variant: 'info', message: 'Use your browser menu to Install (HTTPS or localhost required).' })
   }
 
   return (
-    <header className="sticky top-0 z-40 glass smooth">
-      <div className="flex items-center justify-between px-3 md:px-6 py-3">
+    <header className="fixed top-0 left-0 right-0 z-[110] bg-background/90 backdrop-blur-xl h-[var(--topbar-h)]">
+      <div className="h-full flex items-center justify-between px-3 md:px-6">
         <div className="flex items-center gap-2">
-          {/* Hamburger for mobile */}
           <Button
             variant="ghost"
             size="icon"
@@ -58,7 +53,6 @@ export default function Topbar() {
         </div>
       </div>
 
-      {/* Mobile slide-over sidebar */}
       <MobileSidebar open={open} onOpenChange={setOpen} />
     </header>
   )

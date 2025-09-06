@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { SortHeader, applySort, SortState } from '@/components/ui/sort'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function ItemsPage() {
   const [items, setItems] = useState<any[]>([])
   const [q, setQ] = useState('')
-  const [sort, setSort] = useState<SortState<'sku'|'name'|'stock'|'price'>>({ key: 'name', dir: 'asc' })
+  const [sort, setSort] = useState<SortState<'sku' | 'name' | 'stock' | 'price'>>({ key: 'name', dir: 'asc' })
 
   const load = async () => setItems(await db.list('items'))
   useEffect(() => { load() }, [])
@@ -20,11 +21,11 @@ export default function ItemsPage() {
     [i.name, i.sku, i.category].filter(Boolean).join(' ').toLowerCase().includes(q.toLowerCase())
   ), [items, q])
 
-  const rows = useMemo(()=> applySort(filtered, sort, {
-    sku: (a:any,b:any)=> (a.sku||'').localeCompare(b.sku||''),
-    name: (a:any,b:any)=> (a.name||'').localeCompare(b.name||''),
-    stock: (a:any,b:any)=> Number(a.stockQty||0) - Number(b.stockQty||0),
-    price: (a:any,b:any)=> Number(a.unitPrice||0) - Number(b.unitPrice||0),
+  const rows = useMemo(() => applySort(filtered, sort, {
+    sku: (a: any, b: any) => (a.sku || '').localeCompare(b.sku || ''),
+    name: (a: any, b: any) => (a.name || '').localeCompare(b.name || ''),
+    stock: (a: any, b: any) => Number(a.stockQty || 0) - Number(b.stockQty || 0),
+    price: (a: any, b: any) => Number(a.unitPrice || 0) - Number(b.unitPrice || 0),
   }), [filtered, sort])
 
   return (
@@ -53,11 +54,13 @@ export default function ItemsPage() {
                 <TD className="text-sm">{i.sku || '-'}</TD>
                 <TD className="font-medium">{i.name}</TD>
                 <TD>{i.stockQty || 0}</TD>
-                <TD>{(Number(i.unitPrice||0)).toFixed(2)}</TD>
+                <TD>{(Number(i.unitPrice || 0)).toFixed(2)}</TD>
                 <TD>
                   <div className="flex gap-2">
                     <Button variant="secondary" asChild><Link href={`/items/${i.id}`}>Edit</Link></Button>
-                    <Button variant="destructive" onClick={async () => { await db.remove('items', i.id); load() }}>Delete</Button>
+                    <ConfirmButton onConfirm={async () => { await db.remove('items', i.id); await load() }}>
+                      Delete
+                    </ConfirmButton>
                   </div>
                 </TD>
               </TR>

@@ -8,19 +8,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function ViewCustomer() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [form, setForm] = useState<any | null>(null)
-  const [errors, setErrors] = useState<Record<string,string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => { (async () => setForm(await db.get('customers', id)))() }, [id])
 
   const set = (key: string, value: any) => setForm((f: any) => ({ ...f, [key]: value }))
 
   const validate = () => {
-    const e: Record<string,string> = {}
+    const e: Record<string, string> = {}
     if (!form?.name?.trim()) e.name = 'Name is required'
     if (form?.email && !/^\S+@\S+\.\S+$/.test(form.email)) e.email = 'Invalid email'
     setErrors(e)
@@ -50,7 +51,9 @@ export default function ViewCustomer() {
         <div className="flex gap-2">
           <Button onClick={save}>Save</Button>
           <Button variant="secondary" asChild><Link href="/customers">Cancel</Link></Button>
-          <Button variant="destructive" onClick={async () => { await db.remove('customers', form.id); router.push('/customers') }}>Delete</Button>
+          <ConfirmButton onConfirm={async () => { await db.remove('customers', form.id); router.push('/customers') }}>
+            Delete
+          </ConfirmButton>
         </div>
       </CardContent>
     </Card>

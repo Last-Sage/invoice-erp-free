@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { SortHeader, applySort, type SortState } from '@/components/ui/sort'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -59,7 +60,9 @@ export default function CustomersPage() {
                 <TD>
                   <div className="flex gap-2">
                     <Button variant="secondary" asChild><Link href={`/customers/${c.id}`}>View</Link></Button>
-                    <Button variant="destructive" onClick={async () => { await db.remove('customers', c.id); void load() }}>Delete</Button>
+                    <ConfirmButton onConfirm={async () => { await db.remove('customers', c.id); await load() }}>
+                      Delete
+                    </ConfirmButton>
                   </div>
                 </TD>
               </TR>

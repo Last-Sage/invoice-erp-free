@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/dialog'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function ViewInvoice() {
   const { id } = useParams<{ id: string }>()
@@ -17,10 +18,12 @@ export default function ViewInvoice() {
   const [editOpen, setEditOpen] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => { (async () => {
-    setInvoice(await db.get('invoices', id))
-    setSettings(await db.get('settings', 'settings'))
-  })() }, [id])
+  useEffect(() => {
+    (async () => {
+      setInvoice(await db.get('invoices', id))
+      setSettings(await db.get('settings', 'settings'))
+    })()
+  }, [id])
   if (!invoice) return <div>Loading…</div>
 
   const saveStatus = async (status: string) => {
@@ -43,15 +46,17 @@ export default function ViewInvoice() {
           <Select
             label="Status"
             value={invoice.status}
-            onValueChange={(v)=> saveStatus(v)}
+            onValueChange={(v) => saveStatus(v)}
             options={[
               { label: 'Draft', value: 'draft' }, { label: 'Sent', value: 'sent' },
               { label: 'Paid', value: 'paid' }, { label: 'Overdue', value: 'overdue' }, { label: 'Void', value: 'void' }
             ]}
           />
           <Button variant="secondary" onClick={printPDF}>Print / Export PDF</Button>
-          <Button onClick={()=> setEditOpen(true)}>Edit</Button>
-          <Button variant="destructive" onClick={async ()=> { await db.remove('invoices', invoice.id); router.push('/invoices') }}>Delete</Button>
+          <Button onClick={() => setEditOpen(true)}>Edit</Button>
+          <ConfirmButton onConfirm={async () => { await db.remove('invoices', invoice.id); router.push('/invoices') }}>
+            Delete
+          </ConfirmButton>
         </div>
       </div>
 
@@ -68,7 +73,7 @@ export default function ViewInvoice() {
         <CardHeader>
           <CardTitle>Invoice #{invoice.number}</CardTitle>
           <div className="text-sm text-muted-foreground">
-            Date: {invoice.date?.slice(0,10)} • Due: {invoice.dueDate?.slice(0,10)} • Status: {invoice.status}
+            Date: {invoice.date?.slice(0, 10)} • Due: {invoice.dueDate?.slice(0, 10)} • Status: {invoice.status}
           </div>
         </CardHeader>
         <CardContent>

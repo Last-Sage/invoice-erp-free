@@ -5,7 +5,9 @@ import { cn } from '@/lib/utils'
 function Table({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) {
   return <table className={cn('w-full caption-bottom text-sm', className)} {...props} />
 }
-function THead(props: React.HTMLAttributes<HTMLTableSectionElement>) { return <thead {...props} className="bg-muted/60 sticky top-0" /> }
+function THead(props: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return <thead {...props} className={cn('sticky top-0 z-30 bg-muted/60 backdrop-blur supports-[backdrop-filter]:bg-muted/40')} />
+}
 function TBody(props: React.HTMLAttributes<HTMLTableSectionElement>) { return <tbody {...props} /> }
 function TR(props: React.HTMLAttributes<HTMLTableRowElement>) { return <tr {...props} className="border-b last:border-0 hover:bg-muted/40 smooth" /> }
 function TH({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {

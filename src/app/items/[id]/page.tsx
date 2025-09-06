@@ -8,19 +8,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function EditItem() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [form, setForm] = useState<any | null>(null)
-  const [errors, setErrors] = useState<Record<string,string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => { (async () => setForm(await db.get('items', id)))() }, [id])
 
   const set = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }))
 
   const validate = () => {
-    const e: Record<string,string> = {}
+    const e: Record<string, string> = {}
     if (!form?.name?.trim()) e.name = 'Name is required'
     const sp = Number(form?.unitPrice)
     if (isNaN(sp) || sp <= 0) e.unitPrice = 'Selling price must be > 0'
@@ -64,7 +65,9 @@ export default function EditItem() {
         <div className="flex gap-2">
           <Button onClick={save}>Save</Button>
           <Button variant="secondary" asChild><Link href="/items">Cancel</Link></Button>
-          <Button variant="destructive" onClick={async () => { await db.remove('items', form.id); router.push('/items') }}>Delete</Button>
+          <ConfirmButton onConfirm={async () => { await db.remove('items', form.id); router.push('/items') }}>
+            Delete
+          </ConfirmButton>
         </div>
       </CardContent>
     </Card>

@@ -218,47 +218,48 @@ function setLast(userId: string, table: Table, iso: string): void {
 export async function syncNow(userId: string): Promise<void> {
   const now = new Date().toISOString()
 
-  // Push deletes
+  // Push deletes...
   const deletes = await db.listDeletes()
-  const toDelete = deletes.filter((d) => (TABLES as readonly string[]).includes(d.table))
+  const toDelete = deletes.filter((d) => ['customers','items','invoices','purchases','payments'].includes(d.table))
   for (const d of toDelete) {
     await supabase.from(d.table).delete().eq('id', d.id)
   }
   if (toDelete.length) await db.clearDeletes(toDelete.map((d) => d.key))
 
-  // Push changes
-  for (const table of TABLES) {
-    const last = getLast(userId, table)
+  // Push local upserts...
+  for (const table of ['customers','items','invoices','purchases','payments'] as const) {
+    const last = typeof localStorage !== 'undefined' ? localStorage.getItem(`sync:last:${userId}:${table}`) : null
     const rows = await db.list(table)
-    const changed = last ? rows.filter(r => ((r as any).updatedAt || (r as any).createdAt || '') > last) : rows
+    const changed = last ? rows.filter((r: any) => ((r.updatedAt || r.createdAt || '') > last)) : rows
     if (changed.length) {
-      const payload = changed.map(r => toRemote(table, r as never, userId))
-      const { error } = await supabase.from(table).upsert(payload, { onConflict: 'id' })
-      if (error) console.error('push error', table, error)
+      const payload = changed.map((r) => toRemote(table, r as any, userId))
+      await supabase.from(table).upsert(payload, { onConflict: 'id' })
     }
   }
 
-  // Pull changes
-  for (const table of TABLES) {
-    const last = getLast(userId, table)
+  // Pull remote...
+  for (const table of ['customers','items','invoices','purchases','payments'] as const) {
+    const key = `sync:last:${userId}:${table}`
+    const last = typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null
     const q = last
       ? supabase.from(table).select('*').gt('updated_at', last).order('updated_at', { ascending: true })
       : supabase.from(table).select('*').order('updated_at', { ascending: true })
-
-    const resp = await q as unknown as { data: RemoteMap[typeof table][] | null; error: { message: string } | null }
-    if (resp.error) { console.error('pull error', table, resp.error); continue }
-    const data = resp.data ?? []
-    if (data.length) {
-      const mapped = data.map((r) => fromRemote(table, r as never))
-      await db.bulkPut(table, mapped as never)
-      const lastStamp = (data[data.length - 1] as RemoteBase).updated_at || now
-      setLast(userId, table, lastStamp)
+    const { data } = await q
+    if (data && data.length) {
+      const mapped = data.map((r: any) => fromRemote(table, r))
+      await db.bulkPut(table, mapped as any)
+      const lastStamp = (data[data.length - 1] as any).updated_at || now
+      localStorage.setItem(key, lastStamp)
     } else if (!last) {
-      setLast(userId, table, now)
+      localStorage.setItem(key, now)
     }
   }
-}
 
+  // Broadcast sync completion so pages refresh
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('sync:complete'))
+  }
+}
 export function initOnlineSync(userId?: string): () => void {
   if (!userId) return () => {}
   const handler = () => { if (navigator.onLine) void syncNow(userId) }

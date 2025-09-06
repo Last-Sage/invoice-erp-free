@@ -11,13 +11,14 @@ import { Badge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/utils'
 import { useSettings } from '@/lib/settings-client'
 import { SortHeader, applySort, type SortState } from '@/components/ui/sort'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function PurchasesPage() {
   const { settings } = useSettings()
   const currency = settings?.currency || 'USD'
   const [rows, setRows] = useState<Purchase[]>([])
   const [q, setQ] = useState('')
-  const [sort, setSort] = useState<SortState<'vendor'|'date'|'due'|'status'|'total'>>({ key: 'date', dir: 'desc' })
+  const [sort, setSort] = useState<SortState<'vendor' | 'date' | 'due' | 'status' | 'total'>>({ key: 'date', dir: 'desc' })
 
   const load = async () => setRows(await db.list('purchases'))
   useEffect(() => { void load() }, [])
@@ -63,14 +64,16 @@ export default function PurchasesPage() {
             {data.map((r) => (
               <TR key={r.id}>
                 <TD className="font-medium">{r.vendor}</TD>
-                <TD>{r.date?.slice(0,10)}</TD>
-                <TD>{r.dueDate?.slice(0,10)}</TD>
+                <TD>{r.date?.slice(0, 10)}</TD>
+                <TD>{r.dueDate?.slice(0, 10)}</TD>
                 <TD><Badge variant={r.status === 'paid' ? 'success' : r.status === 'overdue' ? 'destructive' : 'secondary'}>{r.status}</Badge></TD>
                 <TD>{formatCurrency(r.total || 0, currency)}</TD>
                 <TD>
                   <div className="flex gap-2">
                     <Button variant="secondary" asChild><Link href={`/purchases/${r.id}`}>Open</Link></Button>
-                    <Button variant="destructive" onClick={async () => { await db.remove('purchases', r.id); void load() }}>Delete</Button>
+                    <ConfirmButton onConfirm={async () => { await db.remove('purchases', r.id); await load() }}>
+                      Delete
+                    </ConfirmButton>
                   </div>
                 </TD>
               </TR>

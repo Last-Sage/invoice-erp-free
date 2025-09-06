@@ -11,13 +11,14 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useSettings } from '@/lib/settings-client'
 import { SortHeader, applySort, type SortState } from '@/components/ui/sort'
+import ConfirmButton from '@/components/ui/confirm-button'
 
 export default function InvoicesPage() {
   const { settings } = useSettings()
   const currency = settings?.currency || 'USD'
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [q, setQ] = useState('')
-  const [sort, setSort] = useState<SortState<'number'|'customer'|'date'|'due'|'status'|'total'>>({ key: 'date', dir: 'desc' })
+  const [sort, setSort] = useState<SortState<'number' | 'customer' | 'date' | 'due' | 'status' | 'total'>>({ key: 'date', dir: 'desc' })
 
   const load = async () => setInvoices(await db.list('invoices'))
   useEffect(() => { void load() }, [])
@@ -66,14 +67,18 @@ export default function InvoicesPage() {
               <TR key={i.id}>
                 <TD className="font-medium">{i.number}</TD>
                 <TD>{i.customerName || '-'}</TD>
-                <TD>{i.date?.slice(0,10)}</TD>
-                <TD>{i.dueDate?.slice(0,10)}</TD>
+                <TD>{i.date?.slice(0, 10)}</TD>
+                <TD>{i.dueDate?.slice(0, 10)}</TD>
                 <TD><Badge variant={i.status === 'paid' ? 'success' : i.status === 'overdue' ? 'destructive' : 'secondary'}>{i.status}</Badge></TD>
                 <TD>{formatCurrency(i.total || 0, currency)}</TD>
                 <TD>
                   <div className="flex gap-2">
                     <Button variant="secondary" asChild><Link href={`/invoices/${i.id}`}>Open</Link></Button>
-                    <Button variant="destructive" onClick={async () => { await db.remove('invoices', i.id); void load() }}>Delete</Button>
+                    <ConfirmButton
+                      onConfirm={async () => { await db.remove('invoices', i.id); await load() }}
+                    >
+                      Delete
+                    </ConfirmButton>
                   </div>
                 </TD>
               </TR>

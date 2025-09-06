@@ -31,7 +31,7 @@ export default function Sidebar() {
     <aside
       className={cn(
         // Desktop only; sticky so it stays fixed on scroll
-        'hidden md:flex group/aside flex-col glass smooth',
+        'hidden md:flex group/aside flex-col bg-background/90 backdrop-blur-xl',
         'sticky top-0 h-screen w-16 hover:w-64',
       )}
     >
