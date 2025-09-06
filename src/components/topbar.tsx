@@ -8,6 +8,7 @@ import { useState } from 'react'
 import MobileSidebar from './mobile-sidebar'
 import { usePWAInstall } from '@/lib/pwa'
 import { ConfirmDialog } from './ui/dialog'
+import { useAuth } from '@/lib/auth-client'
 
 export default function Topbar() {
   const { theme, setTheme, systemTheme } = useTheme()
@@ -17,12 +18,23 @@ export default function Topbar() {
   const current = theme === 'system' ? systemTheme : theme
   const toggleTheme = () => setTheme(current === 'dark' ? 'light' : 'dark')
 
+
   const onInstall = async () => {
     if (canInstall) {
       await install()
     } else if (isIOS && !isStandalone) {
       setIosHelp(true)
     }
+  }
+
+  const { user, signOut } = useAuth()
+  {
+    user && (
+      <>
+        <span className="hidden sm:inline text-sm text-muted-foreground">{user.email}</span>
+        <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
+      </>
+    )
   }
 
   return (

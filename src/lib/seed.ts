@@ -9,11 +9,11 @@ const sample = <T,>(arr: T[]) => arr[rand(0, arr.length - 1)]
 export async function seedDemoData() {
   // Clear existing optional? We won't delete user data. Just append.
   const names = ['Acme Co', 'Globex', 'Initech', 'Umbrella', 'Soylent', 'Wonka', 'Stark', 'Wayne', 'Hooli', 'Pied Piper', 'Aperture', 'Gringotts', 'Cyberdyne', 'Oscorp', 'Vandelay', 'Massive Dynamic', 'Tyrell', 'Dinoco', 'Babel', 'Vehement']
-  const firstNames = ['Alex','Taylor','Jordan','Riley','Charlie','Jamie','Sam','Morgan','Drew','Avery']
-  const lastNames = ['Smith','Johnson','Lee','Patel','Garcia','Brown','Davis','Miller','Wilson','Anderson']
-  const cat = ['Hardware','Software','Services','Accessories','Office','Maintenance']
+  const firstNames = ['Alex', 'Taylor', 'Jordan', 'Riley', 'Charlie', 'Jamie', 'Sam', 'Morgan', 'Drew', 'Avery']
+  const lastNames = ['Smith', 'Johnson', 'Lee', 'Patel', 'Garcia', 'Brown', 'Davis', 'Miller', 'Wilson', 'Anderson']
+  const cat = ['Hardware', 'Software', 'Services', 'Accessories', 'Office', 'Maintenance']
 
-  
+
   const s = await db.get('settings', 'settings')
   if (!s?.companyName) {
     await db.upsert('settings', {
@@ -30,18 +30,18 @@ export async function seedDemoData() {
   }
 
   // Items (20)
-  const items = []
-  for (let i=0;i<20;i++) {
-    const n = `${sample(cat)} ${i+1}`
+  const items: any[] = []
+  for (let i = 0; i < 20; i++) {
+    const n = `${sample(cat)} ${i + 1}`
     const purchasePrice = rand(5, 80)
     const unitPrice = purchasePrice + rand(10, 100)
     const it = await db.upsert('items', {
-      sku: `SKU-${rand(1000,9999)}`,
+      sku: `SKU-${rand(1000, 9999)}`,
       name: n,
       unitPrice,
       purchasePrice,
       stockQty: rand(5, 100),
-      taxRate: [0, 5, 12, 18][rand(0,3)],
+      taxRate: [0, 5, 12, 18][rand(0, 3)],
       category: sample(cat),
       description: 'Demo item'
     })
@@ -50,27 +50,27 @@ export async function seedDemoData() {
 
   // Customers (20)
   const customers = []
-  for (let i=0;i<20;i++) {
+  for (let i = 0; i < 20; i++) {
     const c = await db.upsert('customers', {
-      name: `${sample(names)} ${sample(['LLC','Inc','Ltd','GmbH','SARL'])}`,
+      name: `${sample(names)} ${sample(['LLC', 'Inc', 'Ltd', 'GmbH', 'SARL'])}`,
       email: `${sample(firstNames).toLowerCase()}.${sample(lastNames).toLowerCase()}@example.com`,
-      phone: `+1-555-${rand(100,999)}-${rand(1000,9999)}`,
-      taxId: `TIN${rand(100000,999999)}`,
-      billingAddress: { line1: `${rand(100,999)} Market St` },
-      shippingAddress: { line1: `${rand(100,999)} Market St` },
+      phone: `+1-555-${rand(100, 999)}-${rand(1000, 9999)}`,
+      taxId: `TIN${rand(100000, 999999)}`,
+      billingAddress: { line1: `${rand(100, 999)} Market St` },
+      shippingAddress: { line1: `${rand(100, 999)} Market St` },
     })
     customers.push(c)
   }
 
   // Purchases (20)
   const purchases = []
-  for (let i=0;i<20;i++) {
-    const lines = Array.from({ length: rand(1,3) }).map(() => ({
-      description: `Expense ${rand(1,999)}`,
+  for (let i = 0; i < 20; i++) {
+    const lines = Array.from({ length: rand(1, 3) }).map(() => ({
+      description: `Expense ${rand(1, 999)}`,
       amount: rand(20, 300)
     }))
     const total = lines.reduce((s, l) => s + l.amount, 0)
-    const status = sample(['unpaid','paid'])
+    const status = sample(['unpaid', 'paid'])
     const date = new Date(Date.now() - rand(0, 180) * 86400000).toISOString()
     const dueDate = new Date(new Date(date).getTime() + rand(7, 30) * 86400000).toISOString()
     const p = await db.upsert('purchases', {
@@ -91,7 +91,7 @@ export async function seedDemoData() {
   }
 
   // Invoices (30)
-  for (let i=0;i<30;i++) {
+  for (let i = 0; i < 30; i++) {
     const customer = sample(customers)
     const lineCount = rand(1, 4)
     const lines = Array.from({ length: lineCount }).map(() => {
@@ -106,13 +106,13 @@ export async function seedDemoData() {
       }
     })
     const subtotal = lines.reduce((s, l) => s + l.qty * l.unitPrice, 0)
-    const taxTotal = lines.reduce((s, l) => s + (l.qty * l.unitPrice) * (l.taxRate || 0)/100, 0)
-    const discount = [0,0,0, 5,10][rand(0,4)]
+    const taxTotal = lines.reduce((s, l) => s + (l.qty * l.unitPrice) * (l.taxRate || 0) / 100, 0)
+    const discount = [0, 0, 0, 5, 10][rand(0, 4)]
     const total = Math.max(0, subtotal + taxTotal - discount)
     const date = new Date(Date.now() - rand(0, 180) * 86400000).toISOString()
     const dueDate = new Date(new Date(date).getTime() + rand(7, 30) * 86400000).toISOString()
     const number = await consumeNextInvoiceNumber()
-    const status = sample(['draft','sent','paid'])
+    const status = sample(['draft', 'sent', 'paid'])
     const inv = await db.upsert('invoices', {
       number,
       customerId: customer.id,

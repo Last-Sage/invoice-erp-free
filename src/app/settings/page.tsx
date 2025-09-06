@@ -8,6 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useTheme } from 'next-themes'
 import { seedDemoData } from '@/lib/seed'
+import { useAuth } from '@/lib/auth-client'
+import { exportBackup, importBackup } from '@/lib/backup'
+import { syncNow } from '@/lib/sync'
+
 
 export default function SettingsPage() {
   const { setTheme } = useTheme()
@@ -65,10 +69,25 @@ export default function SettingsPage() {
   }
 
   const onLogoChange = (file?: File) => {
-    if (!file) { setSettings((s:any)=>({ ...s, logoDataUrl: '' })); return }
+    if (!file) { setSettings((s: any) => ({ ...s, logoDataUrl: '' })); return }
     const reader = new FileReader()
-    reader.onload = () => setSettings((s:any)=>({ ...s, logoDataUrl: String(reader.result) }))
+    reader.onload = () => setSettings((s: any) => ({ ...s, logoDataUrl: String(reader.result) }))
     reader.readAsDataURL(file)
+  }
+
+  const { user } = useAuth()
+  const [syncing, setSyncing] = useState(false)
+  const doSync = async () => {
+    if (!user) return alert('Sign in first')
+    setSyncing(true)
+    try { await syncNow(user.id); alert('Sync complete') } catch (e: any) { alert('Sync failed: ' + e.message) } finally { setSyncing(false) }
+  }
+  const doBackup = async () => exportBackup()
+  const doRestore = async (file?: File) => {
+    if (!file) return
+    const replace = confirm('Replace existing data with backup? Choose OK to replace, Cancel to merge.')
+    await importBackup(file, { replace })
+    alert('Restore complete')
   }
 
   return (
@@ -80,16 +99,16 @@ export default function SettingsPage() {
         <Input label="Company Tax ID" value={settings.taxId || ''} onChange={(e) => setSettings((s: any) => ({ ...s, taxId: e.target.value }))} />
 
         <div className="grid md:grid-cols-2 gap-4">
-          <Input label="Issuer Name (person)" value={settings.contactName || ''} onChange={(e) => setSettings((s:any)=>({ ...s, contactName: e.target.value }))} />
-          <Input label="Issuer Email" error={errors.contactEmail} value={settings.contactEmail || ''} onChange={(e) => setSettings((s:any)=>({ ...s, contactEmail: e.target.value }))} />
-          <Input label="Issuer Phone" value={settings.contactPhone || ''} onChange={(e)=> setSettings((s:any)=>({ ...s, contactPhone: e.target.value }))} />
-          <Input label="Website" value={settings.website || ''} onChange={(e)=> setSettings((s:any)=>({ ...s, website: e.target.value }))} />
+          <Input label="Issuer Name (person)" value={settings.contactName || ''} onChange={(e) => setSettings((s: any) => ({ ...s, contactName: e.target.value }))} />
+          <Input label="Issuer Email" error={errors.contactEmail} value={settings.contactEmail || ''} onChange={(e) => setSettings((s: any) => ({ ...s, contactEmail: e.target.value }))} />
+          <Input label="Issuer Phone" value={settings.contactPhone || ''} onChange={(e) => setSettings((s: any) => ({ ...s, contactPhone: e.target.value }))} />
+          <Input label="Website" value={settings.website || ''} onChange={(e) => setSettings((s: any) => ({ ...s, website: e.target.value }))} />
         </div>
 
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Logo (optional)</label>
           <div className="flex items-center gap-3">
-            <input type="file" accept="image/*" onChange={(e)=> onLogoChange(e.target.files?.[0])} />
+            <input type="file" accept="image/*" onChange={(e) => onLogoChange(e.target.files?.[0])} />
             {settings.logoDataUrl && <img src={settings.logoDataUrl} alt="Logo" className="h-10 rounded" />}
           </div>
         </div>
@@ -117,7 +136,23 @@ export default function SettingsPage() {
           <Button variant="secondary" onClick={resetCounter}>Reset Invoice Counter</Button>
           <Button variant="ghost" onClick={seed}>Seed Demo Data</Button>
         </div>
+
+        <div className="border rounded-xl p-4 space-y-3">
+          <div className="font-semibold">Cloud & Data</div>
+          <div className="text-sm text-muted-foreground">
+            {user ? <>Signed in as {user.email}. Your data will sync when online.</> : <>Not signed in. Sign in to enable cloud sync.</>}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={doSync} disabled={!user || syncing}>{syncing ? 'Syncing…' : 'Sync Now'}</Button>
+            <Button variant="secondary" onClick={doBackup}>Backup (Download)</Button>
+            <label className="pill border px-3 py-2 cursor-pointer">
+              <input type="file" accept="application/json" onChange={(e) => doRestore(e.target.files?.[0] || undefined)} className="hidden" />
+              Restore from File
+            </label>
+          </div>
+        </div>
       </CardContent>
     </Card>
+
   )
 }

@@ -1,28 +1,14 @@
-// app/layout.tsx
+// app/layout.tsx (wrap with AuthProvider and AuthGuard)
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from '@/components/theme-provider'
 import Sidebar from '@/components/sidebar'
 import Topbar from '@/components/topbar'
+import { AuthProvider } from '@/lib/auth-client'
+import AuthGuard from '@/components/auth-guard'
 
-export const metadata: Metadata = {
-  title: 'Invoice Pro',
-  description: 'Local-first invoicing and billing app',
-  applicationName: 'Invoice Pro',
-  manifest: '/manifest.json',
-  icons: [
-    { rel: 'icon', url: '/icons/icon-192.png' },
-    { rel: 'apple-touch-icon', url: '/icons/icon-192.png' },
-  ],
-  themeColor: '#0A84FF',
-}
-
-export const viewport: Viewport = {
-  themeColor: '#0A84FF',
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-}
+export const metadata: Metadata = { /* unchanged */ }
+export const viewport: Viewport = { /* unchanged */ }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,28 +19,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex min-h-screen w-full">
-            {/* Desktop sidebar */}
-            <Sidebar />
-            <div className="flex-1 flex flex-col">
-              <Topbar />
-              <main className="flex-1 p-4 md:p-8">{children}</main>
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="flex min-h-screen w-full">
+              <Sidebar />
+              <div className="flex-1 flex flex-col">
+                <Topbar />
+                <AuthGuard>
+                  <main className="flex-1 p-4 md:p-8">{children}</main>
+                </AuthGuard>
+              </div>
             </div>
-          </div>
-        </ThemeProvider>
-
-        {/* Register PWA service worker (use JS file) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(console.error)
-              })
-            }`,
-          }}
-        />
+          </ThemeProvider>
+        </AuthProvider>
+        <script dangerouslySetInnerHTML={{ __html: `
+          if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js').catch(console.error)
+            })
+          }` }} />
       </body>
     </html>
   )
