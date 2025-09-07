@@ -31,9 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="flex-1 flex flex-col">
                   <Topbar />
                   <AuthGuard>
+                    // app/layout.tsx (only the main tag changed)
                     <main className="flex-1 p-4 md:p-8 pt-[var(--topbar-h)] pb-[calc(var(--tabbar-h)+env(safe-area-inset-bottom,0px))] md:pb-8">
-  {children}
-</main>
+                      {children}
+                    </main>
                     <MobileTabbar />
                   </AuthGuard>
                 </div>

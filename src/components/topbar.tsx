@@ -24,7 +24,7 @@ export default function Topbar() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[110] bg-background/90 backdrop-blur-xl h-[var(--topbar-h)]">
+    <header className="fixed top-0 left-0 right-0 z-[110] glass smooth h-[var(--topbar-h)]">
       <div className="h-full flex items-center justify-between px-3 md:px-6">
         <div className="flex items-center gap-2">
           <Button
